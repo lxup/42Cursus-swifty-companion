@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SearchSheetView: View {
     @StateObject private var users = APIUsers()
-    @StateObject private var debouncedSearch = DebouncedState(initialValue: "")
+    @StateObject private var debouncedSearch = DebouncedState(initialValue: "", delay: 0.5)
     @EnvironmentObject var token: APIToken
     @Environment(\.dismiss) private var dismiss
     @Binding var selectedLogin: String?
@@ -19,24 +19,7 @@ struct SearchSheetView: View {
             List {
                 ForEach(users.results ?? []) { user in
                     HStack {
-                        if (user.image.link != nil) {
-                            AsyncImage(
-                                url: URL(string: user.image.link!),
-                                content: { image in
-                                    image.resizable()
-                                        .aspectRatio(contentMode: .fit)
-                                        .frame(maxWidth: 50, maxHeight: 50)
-                                },
-                                placeholder: {
-                                    ProgressView()
-                                }
-                            )
-                        }
-                        else {
-                            Image("42Icon")
-                                .resizable()
-                                .frame(maxWidth: 50, maxHeight: 50)
-                        }
+                        AvatarComponent(imageURL: user.image.link, fallbackText: user.login)
                         Text(user.login)
                         Spacer()
                     }
@@ -53,19 +36,28 @@ struct SearchSheetView: View {
             prompt: "Who do you want to search?"
             
         )
+        .autocapitalization(.none)
         .disableAutocorrection(true)
         .onAppear() {
             // Initial load
             Task {
                 if let accessToken = token.value?.accessToken {
-                    await users.fetch(token: accessToken, searchTerm: debouncedSearch.debouncedValue)
+                    await users.fetch(
+                        token: accessToken,
+                        searchTerm: debouncedSearch.debouncedValue,
+                        campusId: 1
+                    )
                 }
             }
         }
         .onChange(of: debouncedSearch.debouncedValue) { oldValue, newValue in
             Task {
                 if let accessToken = token.value?.accessToken {
-                    await users.fetch(token: accessToken, searchTerm: newValue)
+                    await users.fetch(
+                        token: accessToken,
+                        searchTerm: newValue,
+                        campusId: 1
+                    )
                 }
             }
         }

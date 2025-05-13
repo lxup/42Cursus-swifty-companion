@@ -8,25 +8,41 @@
 import Foundation
 
 class APIUsers: ObservableObject {
-    @Published var campusId: Int
     @Published var results: [User42]?
     @Published var isLoading: Bool = false
     
-    init(campusId: Int = 1) {
-        self.campusId = campusId
-    }
-    
     @MainActor
-    func fetch(token: String, searchTerm: String? = nil) async {
+    func fetch(
+        token: String,
+        searchTerm: String? = nil,
+        campusId: Int? = nil
+    ) async {
         isLoading = true
+        defer {
+            isLoading = false
+        }
         do {
-            let endpoint = URL(string: "\(APIConstants.shared.apiURL)/campus/\(campusId)/users")!
+            var urlComponents = URLComponents(string: "\(APIConstants.shared.apiURL)/users")!
+            // Build filters
+            var queryItems: [URLQueryItem] = []
+            if let campusId = campusId {
+                queryItems.append(URLQueryItem(name: "campus_id", value: String(campusId)))
+            }
             
-            guard let requestURL = URL(string: "\(endpoint)") else {
+            if let search = searchTerm?
+                .lowercased()
+                .trimmingCharacters(in: .whitespacesAndNewlines),
+               !search.isEmpty {
+                    queryItems.append(URLQueryItem(name: "range[login]", value: "\(search),\(search)z"))
+                }
+            urlComponents.queryItems = queryItems
+            
+            
+            guard let requestURL = urlComponents.url else {
                 results = nil
                 return
             }
-            
+
             var request = URLRequest(url: requestURL)
             request.setValue(
                 "Bearer \(token)",
@@ -37,9 +53,7 @@ class APIUsers: ObservableObject {
             let decoder = JSONDecoder()
             results = try decoder.decode([User42].self, from: data)
         } catch {
-            print(error)
             print("Error: Failed to fetch users.")
         }
-        isLoading = false
     }
 }

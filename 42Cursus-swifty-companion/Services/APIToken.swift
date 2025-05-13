@@ -39,11 +39,13 @@ class APIToken: ObservableObject {
 
     func getToken() async {
         isLoading = true
+        defer {
+            isLoading = false
+        }
         do {
             value = try await checkOrRefreshToken()
         } catch {
             print("Error: Failed to get or refresh token")
         }
-        isLoading = false
     }
 }

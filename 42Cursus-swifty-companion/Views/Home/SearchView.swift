@@ -23,14 +23,10 @@ struct SearchView: View {
             .sheet(isPresented: $showSearchSheet) {
                 SearchSheetView(selectedLogin: $selectedLogin)
             }
-    //        .alert("The user you are looking for doesn't exit", isPresented: $isPresented) {
-    //            Button("OK", role:.cancel) {
-    //                print("cancel")
-    //            }
-    //        }
         }
         .navigationDestination(item: $selectedLogin) { login in
             UserView(login: login)
+                .environmentObject(token)
         }
     }
 }
