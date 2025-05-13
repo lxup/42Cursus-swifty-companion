@@ -10,12 +10,13 @@ import Foundation
 @MainActor
 class APIToken: ObservableObject {
     @Published var value: Token? = nil
+    @Published var isLoading: Bool = false
 
     func generateToken() async throws -> Token {
-        let url = URL(string: "https://api.intra.42.fr/oauth/token")!
-        let body = "grant_type=client_credentials&client_id=\(APIConfig.shared.uid)&client_secret=\(APIConfig.shared.secret)"
+        let endpoint = URL(string: "\(APIConstants.shared.baseURL)/oauth/token")!
+        let body = "grant_type=client_credentials&client_id=\(APIConstants.shared.uid)&client_secret=\(APIConstants.shared.secret)"
 
-        var request = URLRequest(url: url)
+        var request = URLRequest(url: endpoint)
         request.httpMethod = "POST"
         request.httpBody = body.data(using: .utf8)
 
@@ -37,10 +38,12 @@ class APIToken: ObservableObject {
     }
 
     func getToken() async {
+        isLoading = true
         do {
             value = try await checkOrRefreshToken()
         } catch {
             print("Error: Failed to get or refresh token")
         }
+        isLoading = false
     }
 }

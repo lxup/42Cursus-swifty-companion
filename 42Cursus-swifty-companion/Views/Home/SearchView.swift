@@ -8,12 +8,29 @@
 import SwiftUI
 
 struct SearchView: View {
+    @State private var showSearchSheet: Bool = false
+    @State private var selectedLogin: String?
+    @EnvironmentObject var token: APIToken
+    
     var body: some View {
-        Button(action: {
-            print("go search")
-        }) {
-            Label("Letsgo 🥷", systemImage: "magnifyingglass")
+        NavigationStack {
+            Button(action: {
+                showSearchSheet.toggle()
+            }) {
+                Label("Letsgo 🥷", systemImage: "magnifyingglass")
+            }
+            .buttonStyle(NavigationButtonStyle(backgroundColor: Color.red))
+            .sheet(isPresented: $showSearchSheet) {
+                SearchSheetView(selectedLogin: $selectedLogin)
+            }
+    //        .alert("The user you are looking for doesn't exit", isPresented: $isPresented) {
+    //            Button("OK", role:.cancel) {
+    //                print("cancel")
+    //            }
+    //        }
         }
-        .buttonStyle(NavigationButtonStyle(backgroundColor: Color.red))
+        .navigationDestination(item: $selectedLogin) { login in
+            UserView(login: login)
+        }
     }
 }

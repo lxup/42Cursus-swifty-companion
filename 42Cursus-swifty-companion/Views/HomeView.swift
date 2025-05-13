@@ -10,9 +10,6 @@ import SwiftUI
 struct HomeView: View {
     @StateObject var token: APIToken = APIToken()
     
-    // State
-    
-    
     var body: some View {
         NavigationStack{
             ZStack(alignment:.center) {
@@ -27,7 +24,8 @@ struct HomeView: View {
                     if (token.value != nil) {
                         SearchView()
                             .padding()
-                    } else {
+                            .environmentObject(token)
+                    } else if (token.isLoading) {
                         LoadingComponent()
                     }
                 }
