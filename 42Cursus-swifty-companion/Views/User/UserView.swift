@@ -15,7 +15,27 @@ struct UserView: View {
     
     var body: some View {
         VStack {
-            if user.isInitialized && user.value == nil {
+            if user.error != nil {
+                VStack(spacing: 8) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundColor(.secondary)
+                        .font(.system(size: 40))
+                    Text("Failed to fetch user: \(login)")
+                    Button("Retry") {
+                        Task {
+                            if let accessToken = token.value?.accessToken {
+                                await user.fetch(
+                                    token: accessToken,
+                                    login: login
+                                )
+                            }
+                        }
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+                .padding()
+                .cornerRadius(20)
+            } else if user.isInitialized && user.value == nil {
                 Text("User not found")
             } else {
                 HStack {
@@ -41,15 +61,16 @@ struct UserView: View {
                 }
                 .padding(10)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                UserSubHeaderView(user: user.value, activeCursus: $activeCursus)
-                UserTabsView(user: user.value, activeCursus: $activeCursus)
+                if user.isInitialized && user.value != nil {
+                    UserSubHeaderView(user: user.value, activeCursus: $activeCursus)
+                    UserTabsView(user: user.value, activeCursus: $activeCursus)
+                }
             }
         }
         .frame(maxHeight: .infinity, alignment: .top)
         .redacted(reason: !user.isInitialized ? .placeholder : [])
         .onAppear {
             Task {
-//                try? await Task.sleep(nanoseconds: 2_000_000_000)
                 if let accessToken = token.value?.accessToken {
                     await user.fetch(
                         token: accessToken,

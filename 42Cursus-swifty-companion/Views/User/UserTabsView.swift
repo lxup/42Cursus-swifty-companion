@@ -10,6 +10,7 @@ import SwiftUI
 enum UserTabs: String, CaseIterable, Identifiable {
     case projects = "Projects"
     case achievements = "Achievements"
+    case skills = "Skills"
     
     var id: Self { self }
     
@@ -17,6 +18,7 @@ enum UserTabs: String, CaseIterable, Identifiable {
         switch self {
             case .projects: return "hammer"
             case .achievements: return "trophy"
+            case .skills: return "bolt"
         }
     }
 }
@@ -29,27 +31,19 @@ struct UserTabsView: View {
         VStack(spacing: 15) {
             Picker("", selection: $activeTab) {
                 ForEach(UserTabs.allCases) { tab in
-                    if let catUIImage = ImageRenderer(content: buildTabView(tab: tab)).uiImage {
-                        Image(uiImage: catUIImage)
-                           .tag(tab)
-                    }
+                    Image(systemName: tab.icon)
                 }
             }
                 .pickerStyle(.segmented)
             TabView(selection: $activeTab) {
-                UserProjectsView()
+                UserProjectsView(user: user, activeCursus: $activeCursus)
                     .tag(UserTabs.projects)
-                UserAchievementsView()
+                UserAchievementsView(user: user, activeCursus: $activeCursus)
                     .tag(UserTabs.achievements)
+                UserSkillsView(user: user, activeCursus: $activeCursus)
+                    .tag(UserTabs.skills)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
-        }
-    }
-    
-    private func buildTabView(tab: UserTabs) -> some View {
-        HStack {
-            Image(systemName: tab.icon)
-            Text(tab.rawValue)
         }
     }
 }

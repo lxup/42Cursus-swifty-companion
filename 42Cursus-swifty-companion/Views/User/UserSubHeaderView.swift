@@ -34,8 +34,6 @@ struct UserSubHeaderView: View {
                     .frame(maxWidth: .infinity, alignment: .center)
                 Divider()
                     .frame(height: 25)
-                Divider()
-                    .frame(height: 25)
                 (Text("Ev.P ").bold() + Text("\(user?.correctionPoint ?? 0)"))
                     .frame(maxWidth: .infinity, alignment: .center)
             }

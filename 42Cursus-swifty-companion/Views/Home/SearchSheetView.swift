@@ -16,24 +16,52 @@ struct SearchSheetView: View {
     
     var body: some View {
         NavigationStack {
-            List {
-                ForEach(users.results ?? []) { user in
-                    HStack {
-                        AvatarComponent(imageURL: user.image.link, fallbackText: user.login)
-                        Text(user.login)
-                        Spacer()
+            if users.error != nil {
+                VStack(spacing: 8) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundColor(.secondary)
+                        .font(.system(size: 40))
+                    Text("Failed to fetch users.")
+                    Button("Retry") {
+                        Task {
+                            if let accessToken = token.value?.accessToken {
+                                await users.fetch(
+                                    token: accessToken,
+                                    searchTerm: debouncedSearch.debouncedValue,
+                                    campusId: 1
+                                )
+                            }
+                        }
                     }
-                    .onTapGesture {
-                        selectedLogin = user.login
-                        dismiss()
+                    .buttonStyle(.borderedProminent)
+                }
+                .padding()
+                .cornerRadius(20)
+            } else if users.results?.isEmpty == false {
+                List {
+                    ForEach(users.results ?? []) { user in
+                        HStack {
+                            AvatarComponent(imageURL: user.image.link, fallbackText: user.login)
+                            Text(user.login)
+                            Spacer()
+                        }
+                        .onTapGesture {
+                            selectedLogin = user.login
+                            dismiss()
+                        }
                     }
                 }
+            } else if users.isLoading {
+                LoadingComponent()
+            } else {
+                Text("No results found")
+                    .foregroundStyle(.secondary)
             }
             
         }
         .searchable(
             text: $debouncedSearch.value,
-            prompt: "Who do you want to search?"
+            prompt: "Who do u wanna search?"
             
         )
         .autocapitalization(.none)

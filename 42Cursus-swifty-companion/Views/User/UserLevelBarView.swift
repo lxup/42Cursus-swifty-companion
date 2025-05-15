@@ -11,6 +11,7 @@ struct UserLevelBarView: View {
     var level: Double
     @State private var animatedProgress: Double = 0
     @State private var previousLevel: Double = 0
+    @State private var hasAppeared = false
 
     var percent: Double {
         let fractional = level - floor(level)
@@ -23,6 +24,8 @@ struct UserLevelBarView: View {
                 .fontWeight(.semibold)
         }
         .onAppear {
+            guard !hasAppeared else { return }
+            hasAppeared = true
             previousLevel = level
             animateToLevel()
         }

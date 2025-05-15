@@ -22,11 +22,30 @@ struct HomeView: View {
                     Text("Ready to stalk ?")
                         .font(.title)
                     
-                    if (token.value != nil) {
+                    if token.error != nil {
+                        VStack(spacing: 8) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundColor(.red)
+                                .font(.system(size: 40))
+                            Text("Failed to fetch token")
+                            Button("Retry") {
+                                Task {
+                                    await token.getToken()
+                                }
+                            }
+                            .buttonStyle(.borderedProminent)
+                        }
+                        .padding()
+                        .cornerRadius(20)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(.red, lineWidth: 5)
+                        )
+                    } else if token.value != nil {
                         SearchView()
                             .padding()
                             .environmentObject(token)
-                    } else if (token.isLoading) {
+                    } else if token.isLoading {
                         LoadingComponent()
                     }
                 }

@@ -11,12 +11,14 @@ class APIUser: ObservableObject {
     @Published var value: User42?
     @Published var isInitialized: Bool = false
     @Published var isLoading: Bool = false
+    @Published var error: Error? = nil
     
     @MainActor
     func fetch(
         token: String,
         login: String
     ) async {
+        self.error = nil
         isLoading = true
         defer {
             isLoading = false
@@ -24,9 +26,11 @@ class APIUser: ObservableObject {
         }
         do {
             self.value = try await fetchUser(token: token, login: login)
-            self.value?.coalitions = try await fetchCoalitions(token: token, login: login)
-            self.value?.coalition = self.value?.coalitions?.last
+
+//            self.value?.coalitions = try await fetchCoalitions(token: token, login: login)
+//            self.value?.coalition = self.value?.coalitions?.last
         } catch {
+            self.error = error
             print("Error: Failed to fetch user -> \(login)")
         }
     }

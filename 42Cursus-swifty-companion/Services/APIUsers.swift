@@ -10,6 +10,7 @@ import Foundation
 class APIUsers: ObservableObject {
     @Published var results: [User42]?
     @Published var isLoading: Bool = false
+    @Published var error: Error? = nil
     
     @MainActor
     func fetch(
@@ -17,6 +18,7 @@ class APIUsers: ObservableObject {
         searchTerm: String? = nil,
         campusId: Int? = nil
     ) async {
+        self.error = nil
         isLoading = true
         defer {
             isLoading = false
@@ -53,7 +55,7 @@ class APIUsers: ObservableObject {
             let decoder = JSONDecoder()
             results = try decoder.decode([User42].self, from: data)
         } catch {
-            print(error)
+            self.error = error
             print("Error: Failed to fetch users.")
         }
     }

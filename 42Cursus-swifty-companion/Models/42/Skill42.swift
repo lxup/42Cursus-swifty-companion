@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Skill42: Codable {
+struct Skill42: Codable, Identifiable {
     var id: Int
     var name: String
     var level: Double

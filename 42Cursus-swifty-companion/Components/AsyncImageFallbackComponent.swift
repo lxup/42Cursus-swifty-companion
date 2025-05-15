@@ -1,5 +1,5 @@
 //
-//  AvatarComponent.swift
+//  AsyncImageFallback.swift
 //  42Cursus-swifty-companion
 //
 //  Created by Loup on 13/05/2025.
@@ -7,16 +7,15 @@
 
 import SwiftUI
 
-struct AvatarComponent: View {
+struct AsyncImageFallbackComponent: View {
     var imageURL: String?
-    var fallbackText: String
     var size: CGFloat = 50
     @Environment(\.redactionReasons) private var redactionReasons
 
     var body: some View {
         ZStack {
             if redactionReasons.contains(.placeholder) {
-                Circle()
+                Rectangle()
                     .fill(Color.gray.opacity(0.3))
             } else if let imageURL = imageURL, let url = URL(string: imageURL) {
                 AsyncImage(url: url) { phase in
@@ -24,29 +23,20 @@ struct AvatarComponent: View {
                     case .empty:
                         Color.gray.opacity(0.3)
                     case .success(let image):
-                        image
-                            .resizable()
-                            .scaledToFill()
+                        image.resizable().scaledToFill()
                     case .failure(_):
-                        fallback
+                        Image(systemName: "photo").resizable().scaledToFit()
                     @unknown default:
-                        fallback
+                        Color.gray.opacity(0.3)
                     }
                 }
             } else {
-                fallback
+                Image(systemName: "photo").resizable().scaledToFit()
             }
         }
         .frame(width: size, height: size)
-        .clipShape(Circle())
-    }
-
-    private var fallback: some View {
-        Text(String(fallbackText.prefix(1)).uppercased())
-            .font(.system(size: size * 0.4))
-            .foregroundColor(.white)
-            .frame(width: size, height: size)
-            .background(Color.accentColor)
+        .clipped()
+        .cornerRadius(size / 5)
     }
 }
 

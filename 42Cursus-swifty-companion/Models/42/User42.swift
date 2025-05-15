@@ -34,6 +34,8 @@ struct User42: Codable, Identifiable {
     var alumni: Bool
     var active: Bool
     var cursusUsers: [CursusUser42]?
+    var projectsUsers: [ProjectUser42]?
+    var achievements: [Achievement42]?
     var coalitions: [Coalition42]?
     var coalition: Coalition42?
     
@@ -64,6 +66,9 @@ struct User42: Codable, Identifiable {
         case alumni = "alumni?"
         case active = "active?"
         case cursusUsers = "cursus_users"
+        case projectsUsers = "projects_users"
+        case achievements
         case coalitions = "coalitions"
+        case coalition
     }
 }

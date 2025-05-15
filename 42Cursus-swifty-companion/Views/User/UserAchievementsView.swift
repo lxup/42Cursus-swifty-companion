@@ -8,7 +8,34 @@
 import SwiftUI
 
 struct UserAchievementsView: View {
+    var user: User42?
+    @Binding var activeCursus: CursusUser42?
+    
     var body: some View {
-        Text("User Achievements")
+        let uniqueAchievements = (user?.achievements ?? [])
+            .reduce(into: [String: Achievement42]()) { acc, current in
+                let key = current.name
+                if let existing = acc[key] {
+                    let currentSuccess = current.nbrOfSuccess ?? 0
+                    let existingSuccess = existing.nbrOfSuccess ?? 0
+                    if currentSuccess > existingSuccess {
+                        acc[key] = current
+                    }
+                } else {
+                    acc[key] = current
+                }
+            }
+            .map { $0.value }
+        if uniqueAchievements.isEmpty == false {
+            List(uniqueAchievements) { achievementUser in
+                HStack {
+                    AsyncImageFallbackComponent(imageURL: achievementUser.image)
+                    Text(achievementUser.name)
+                }
+            }
+        } else {
+            Text("No achievements found")
+                .foregroundStyle(.secondary)
+        }
     }
 }

@@ -12,12 +12,12 @@ struct ProjectUser42: Codable, Identifiable {
     var occurrence: Int
     var finalMark: Int?
     var status: String
-    var validated: Bool
-    var currentTeamId: Int
+    var validated: Bool?
+    var currentTeamId: Int?
     var project: Project42
     var cursusIds: [Int]
     var markedAt: String?
-    var market: Bool
+    var market: Bool?
     var retriableAt: String?
     var createdAt: String
     var updatedAt: String

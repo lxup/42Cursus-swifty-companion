@@ -11,6 +11,7 @@ import Foundation
 class APIToken: ObservableObject {
     @Published var value: Token? = nil
     @Published var isLoading: Bool = false
+    @Published var error: Error? = nil
 
     func generateToken() async throws -> Token {
         let endpoint = URL(string: "\(APIConstants.shared.baseURL)/oauth/token")!
@@ -22,15 +23,13 @@ class APIToken: ObservableObject {
 
         let (data, _) = try await URLSession.shared.data(for: request)
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .secondsSince1970 // format date
+        decoder.dateDecodingStrategy = .secondsSince1970
 
-        let newToken = try decoder.decode(Token.self, from: data)
-        return newToken
+        return try decoder.decode(Token.self, from: data)
     }
 
     func checkOrRefreshToken() async throws -> Token {
-        if let currentToken = value,
-           Date() < currentToken.expirationDate.addingTimeInterval(-10) { // refrain token if the actual one expire in -10s
+        if let currentToken = value, Date() < currentToken.expirationDate.addingTimeInterval(-10) {
             return currentToken
         }
 
@@ -38,6 +37,7 @@ class APIToken: ObservableObject {
     }
 
     func getToken() async {
+        self.error = nil
         isLoading = true
         defer {
             isLoading = false
@@ -45,6 +45,7 @@ class APIToken: ObservableObject {
         do {
             value = try await checkOrRefreshToken()
         } catch {
+            self.error = error
             print("Error: Failed to get or refresh token")
         }
     }
