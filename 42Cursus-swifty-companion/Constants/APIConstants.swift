@@ -15,6 +15,7 @@ struct APIConstants {
     let apiURL: String
     let uid: String
     let secret: String
+    let preferredCursusOrder: [Int]
 
     private init() {
         guard let url = Bundle.main.url(forResource: "env", withExtension: "plist"),
@@ -32,24 +33,6 @@ struct APIConstants {
         self.apiURL = "\(baseURL)/\(apiVersion)"
         self.uid = uid
         self.secret = secret
+        self.preferredCursusOrder = [21, 9]
     }
-//    static let uid: String = loadPlistValue(forKey: "API_UID")
-//    static let secret: String = loadPlistValue(forKey: "API_SECRET")
-//    
-//    static var baseURL: String {
-//        guard let url = Bundle.main.object(forInfoDictionaryKey: "API_BASE_URL") as? String else {
-//            fatalError("BASE_URL not found in Info.plist")
-//        }
-//        return url
-//    }
-//
-//    private static func loadPlistValue(forKey key: String) -> String {
-//        guard let url = Bundle.main.url(forResource: "env", withExtension: "plist"),
-//              let data = try? Data(contentsOf: url),
-//              let dict = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any],
-//              let value = dict[key] as? String else {
-//            fatalError("\(key) not found in env.plist")
-//        }
-//        return value
-//    }
 }

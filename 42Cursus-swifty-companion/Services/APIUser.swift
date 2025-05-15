@@ -40,6 +40,7 @@ class APIUser: ObservableObject {
             let decoder = JSONDecoder()
             value = try decoder.decode(User42.self, from: data)
         } catch {
+//            print(error)
             print("Error: Failed to fetch user -> \(login)")
         }
     }

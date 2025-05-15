@@ -20,6 +20,7 @@ struct HomeView: View {
                         .frame(height: 100)
                         .foregroundColor(.accentColor)
                     Text("Ready to stalk ?")
+                        .font(.title)
                     
                     if (token.value != nil) {
                         SearchView()

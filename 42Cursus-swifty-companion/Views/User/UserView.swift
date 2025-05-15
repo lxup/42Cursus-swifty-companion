@@ -10,6 +10,7 @@ import SwiftUI
 struct UserView: View {
     var login: String
     @StateObject private var user = APIUser()
+    @State private var activeCursus: CursusUser42?
     @EnvironmentObject var token: APIToken
     
     var body: some View {
@@ -20,17 +21,35 @@ struct UserView: View {
                 HStack {
                     AvatarComponent(
                         imageURL: user.value?.image.link,
-                        fallbackText: user.value?.login ?? "placeholder"
+                        fallbackText: user.value?.login ?? "placeholder",
+                        size: 100
                     )
-                    Text(user.value?.login ?? "placeholder")
+                    VStack(alignment: .leading) {
+                        HStack(alignment: .center) {
+                            Text(user.value?.login ?? "placeholder")
+                                .font(.largeTitle)
+                            
+                        }
+                        HStack(alignment: .center) {
+                            Text("\(Int(activeCursus?.level ?? 0))")
+                                .font(.title)
+                                .fontWeight(.bold)
+                            UserLevelBarView(level: activeCursus?.level ?? 0)
+                        }
+                    }
                 }
-                .redacted(reason: !user.isInitialized ? .placeholder : [])
+                .frame(maxWidth: .infinity, alignment: .leading)
+                UserSubHeader(
+                    user: user.value,
+                    activeCursus: $activeCursus
+                )
             }
         }
         .frame(maxHeight: .infinity, alignment: .top)
+        .redacted(reason: !user.isInitialized ? .placeholder : [])
         .onAppear {
             Task {
-                try? await Task.sleep(nanoseconds: 2_000_000_000)
+//                try? await Task.sleep(nanoseconds: 2_000_000_000)
                 if let accessToken = token.value?.accessToken {
                     await user.fetch(
                         token: accessToken,
@@ -39,5 +58,37 @@ struct UserView: View {
                 }
             }
         }
+        .onChange(of: user.value?.id) {
+            if let cursus = user.value?.cursusUsers {
+                activeCursus = cursus
+                    .sorted {
+                        (APIConstants.shared.preferredCursusOrder.firstIndex(of: $0.cursusId) ?? Int.max)
+                        <
+                        (APIConstants.shared.preferredCursusOrder.firstIndex(of: $1.cursusId) ?? Int.max)
+                    }
+                    .first
+            }
+        }
     }
+}
+
+#Preview {
+    struct AsyncTestView: View {
+        @StateObject var token: APIToken = APIToken()
+        var body: some View {
+            VStack {
+                if (token.value != nil) {
+                    UserView(login: "lquehec")
+                        .environmentObject(token)
+                } else if (token.isLoading) {
+                    LoadingComponent()
+                }
+            }
+            .task {
+                await token.getToken()
+            }
+        }
+    }
+    
+    return AsyncTestView()
 }
