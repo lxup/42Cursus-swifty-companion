@@ -7,13 +7,13 @@
 
 import SwiftUI
 
-struct UserSubHeader: View {
+struct UserSubHeaderView: View {
     var user: User42?
     @Binding var activeCursus: CursusUser42?
     @State private var showingCursus = false
     
     var body: some View {
-        VStack {
+        VStack(spacing: 10) {
             Button(action: {
                 showingCursus = true
             }) {
@@ -29,6 +29,18 @@ struct UserSubHeader: View {
                 }
                 Button("Cancel", role: .cancel) {}
             }
+            HStack {
+                (Text("₳ ").bold() + Text("\(user?.wallet ?? 0)"))
+                    .frame(maxWidth: .infinity, alignment: .center)
+                Divider()
+                    .frame(height: 25)
+                Divider()
+                    .frame(height: 25)
+                (Text("Ev.P ").bold() + Text("\(user?.correctionPoint ?? 0)"))
+                    .frame(maxWidth: .infinity, alignment: .center)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal)
         }
         .padding()
         .frame(maxWidth: .infinity)

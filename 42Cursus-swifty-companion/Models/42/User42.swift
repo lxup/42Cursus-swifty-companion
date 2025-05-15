@@ -34,6 +34,8 @@ struct User42: Codable, Identifiable {
     var alumni: Bool
     var active: Bool
     var cursusUsers: [CursusUser42]?
+    var coalitions: [Coalition42]?
+    var coalition: Coalition42?
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -62,5 +64,6 @@ struct User42: Codable, Identifiable {
         case alumni = "alumni?"
         case active = "active?"
         case cursusUsers = "cursus_users"
+        case coalitions = "coalitions"
     }
 }

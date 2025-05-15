@@ -23,25 +23,30 @@ class APIUser: ObservableObject {
             isInitialized = true
         }
         do {
-            let urlComponents = URLComponents(string: "\(APIConstants.shared.apiURL)/users/\(login.lowercased())")!
-            
-            guard let requestURL = urlComponents.url else {
-                value = nil
-                return
-            }
-
-            var request = URLRequest(url: requestURL)
-            request.setValue(
-                "Bearer \(token)",
-                forHTTPHeaderField: "Authorization"
-            )
-            
-            let (data, _) = try await URLSession.shared.data(for: request)
-            let decoder = JSONDecoder()
-            value = try decoder.decode(User42.self, from: data)
+            self.value = try await fetchUser(token: token, login: login)
+            self.value?.coalitions = try await fetchCoalitions(token: token, login: login)
+            self.value?.coalition = self.value?.coalitions?.last
         } catch {
-//            print(error)
             print("Error: Failed to fetch user -> \(login)")
         }
+    }
+    
+    // REQUESTS
+    private func fetchUser(token: String, login: String) async throws -> User42 {
+        let urlComponents = URLComponents(string: "\(APIConstants.shared.apiURL)/users/\(login.lowercased())")!
+        guard let requestURL = urlComponents.url else { throw URLError(.badURL) }
+        var request = URLRequest(url: requestURL)
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        let (data, _) = try await URLSession.shared.data(for: request)
+        return try JSONDecoder().decode(User42.self, from: data)
+    }
+        
+    private func fetchCoalitions(token: String, login: String) async throws -> [Coalition42] {
+        let urlComponents = URLComponents(string: "\(APIConstants.shared.apiURL)/users/\(login.lowercased())/coalitions")!
+        guard let requestURL = urlComponents.url else { throw URLError(.badURL) }
+        var request = URLRequest(url: requestURL)
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        let (data, _) = try await URLSession.shared.data(for: request)
+        return try JSONDecoder().decode([Coalition42].self, from: data)
     }
 }

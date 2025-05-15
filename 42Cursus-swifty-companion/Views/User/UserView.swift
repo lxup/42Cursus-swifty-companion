@@ -28,7 +28,8 @@ struct UserView: View {
                         HStack(alignment: .center) {
                             Text(user.value?.login ?? "placeholder")
                                 .font(.largeTitle)
-                            
+                            Spacer()
+                            UserLocationView(location: user.value?.location)
                         }
                         HStack(alignment: .center) {
                             Text("\(Int(activeCursus?.level ?? 0))")
@@ -38,11 +39,10 @@ struct UserView: View {
                         }
                     }
                 }
+                .padding(10)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                UserSubHeader(
-                    user: user.value,
-                    activeCursus: $activeCursus
-                )
+                UserSubHeaderView(user: user.value, activeCursus: $activeCursus)
+                UserTabsView(user: user.value, activeCursus: $activeCursus)
             }
         }
         .frame(maxHeight: .infinity, alignment: .top)
