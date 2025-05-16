@@ -29,7 +29,12 @@ struct UserAchievementsView: View {
         if uniqueAchievements.isEmpty == false {
             List(uniqueAchievements) { achievementUser in
                 HStack {
-                    AsyncImageFallbackComponent(imageURL: achievementUser.image)
+                    AsyncSVGImage(url: URL(string: achievementUser.imageUrl ?? "")) { image in
+                        image.resizable()
+                            .frame(width: 50, height: 50)
+                    } placeholder: {
+                        ProgressView()
+                    }
                     Text(achievementUser.name)
                 }
             }

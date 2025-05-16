@@ -13,14 +13,19 @@ struct SearchSheetView: View {
     @EnvironmentObject var token: APIToken
     @Environment(\.dismiss) private var dismiss
     @Binding var selectedLogin: String?
+    @State private var showErrorAlert = false
     
     var body: some View {
         NavigationStack {
-            if users.error != nil {
+            if let error = users.error {
                 VStack(spacing: 8) {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundColor(.secondary)
-                        .font(.system(size: 40))
+                    Button {
+                        showErrorAlert = true
+                    } label: {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(.secondary)
+                            .font(.system(size: 40))
+                    }
                     Text("Failed to fetch users.")
                     Button("Retry") {
                         Task {
@@ -35,22 +40,40 @@ struct SearchSheetView: View {
                     }
                     .buttonStyle(.borderedProminent)
                 }
-                .padding()
-                .cornerRadius(20)
-            } else if users.results?.isEmpty == false {
+                .alert("Error", isPresented: $showErrorAlert) {
+                    Button("OK", role: .cancel) { }
+                } message: {
+                    Text(error.localizedDescription)
+                }
+            } else if users.results.isEmpty == false {
                 List {
-                    ForEach(users.results ?? []) { user in
+                    ForEach(users.results) { user in
                         HStack {
-                            AvatarComponent(imageURL: user.image.link, fallbackText: user.login)
+                            AvatarComponent(imageURL: user.image?.link, fallbackText: user.login)
                             Text(user.login)
                             Spacer()
                         }
+                        .frame(maxWidth: .infinity)
+                        .contentShape(Rectangle())
                         .onTapGesture {
                             selectedLogin = user.login
                             dismiss()
                         }
                     }
+                    if !users.isFinished {
+                        HStack {
+                            Spacer()
+                            LoadingComponent()
+                                .onAppear() {
+                                    users.fetchNextPage()
+                                }
+                            Spacer()
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                    }
                 }
+                
             } else if users.isLoading {
                 LoadingComponent()
             } else {

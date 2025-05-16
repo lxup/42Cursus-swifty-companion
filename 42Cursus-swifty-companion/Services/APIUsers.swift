@@ -8,55 +8,82 @@
 import Foundation
 
 class APIUsers: ObservableObject {
-    @Published var results: [User42]?
-    @Published var isLoading: Bool = false
+    @Published var results: [User42] = []
     @Published var error: Error? = nil
+    @Published var isLoading: Bool = false
+    @Published var isFinished: Bool = false
+    
+    private var currentPage: Int = 1
+    private var currentSearchTerm: String?
+    private var currentCampusId: Int?
+    private var token: String?
     
     @MainActor
-    func fetch(
-        token: String,
-        searchTerm: String? = nil,
-        campusId: Int? = nil
-    ) async {
-        self.error = nil
-        isLoading = true
-        defer {
-            isLoading = false
+    func fetch(token: String, searchTerm: String? = nil, campusId: Int? = nil) async {
+        self.token = token
+        self.currentPage = 1
+        self.currentSearchTerm = searchTerm
+        self.currentCampusId = campusId
+        self.isFinished = false
+        self.results = []
+        await fetchPage(page: currentPage)
+    }
+    
+    @MainActor
+    func fetchNextPage() {
+        guard !isLoading, !isFinished, let _ = token else { return }
+        currentPage += 1
+        Task {
+            await fetchPage(page: currentPage)
         }
+    }
+    
+    @MainActor
+    private func fetchPage(page: Int) async {
+        isLoading = true
+        defer { isLoading = false }
+
         do {
             var urlComponents = URLComponents(string: "\(APIConstants.shared.apiURL)/users")!
-            // Build filters
-            var queryItems: [URLQueryItem] = []
-            if let campusId = campusId {
-                queryItems.append(URLQueryItem(name: "campus_id", value: String(campusId)))
+            var queryItems: [URLQueryItem] = [
+                URLQueryItem(name: "page[number]", value: "\(page)")
+            ]
+            if let campusId = currentCampusId {
+                queryItems.append(URLQueryItem(name: "campus_id", value: "\(campusId)"))
             }
-            
-            if let search = searchTerm?
+            if let search = currentSearchTerm?
                 .lowercased()
                 .trimmingCharacters(in: .whitespacesAndNewlines),
-               !search.isEmpty {
-                    queryItems.append(URLQueryItem(name: "range[login]", value: "\(search),\(search)z"))
-                }
-            urlComponents.queryItems = queryItems
-            
-            
-            guard let requestURL = urlComponents.url else {
-                results = nil
-                return
+                !search.isEmpty {
+                queryItems.append(URLQueryItem(name: "range[login]", value: "\(search),\(search)z"))
             }
 
-            var request = URLRequest(url: requestURL)
-            request.setValue(
-                "Bearer \(token)",
-                forHTTPHeaderField: "Authorization"
-            )
-            
-            let (data, _) = try await URLSession.shared.data(for: request)
+            urlComponents.queryItems = queryItems
+            guard let url = urlComponents.url else { return }
+
+            var request = URLRequest(url: url)
+            request.setValue("Bearer \(token!)", forHTTPHeaderField: "Authorization")
+
+            let (data, response) = try await URLSession.shared.data(for: request)
+            if let httpResponse = response as? HTTPURLResponse, !(200...299).contains(httpResponse.statusCode) {
+                let errorText = String(data: data, encoding: .utf8) ?? "Unknown error"
+                throw NSError(
+                    domain: "APIError",
+                    code: httpResponse.statusCode,
+                    userInfo: [NSLocalizedDescriptionKey: errorText]
+                )
+            }
             let decoder = JSONDecoder()
-            results = try decoder.decode([User42].self, from: data)
+            let newUsers = try decoder.decode([User42].self, from: data)
+
+            if newUsers.isEmpty {
+                isFinished = true
+            } else {
+                results.append(contentsOf: newUsers)
+            }
         } catch {
             self.error = error
-            print("Error: Failed to fetch users.")
+            print("Error: Failed to fetch users")
         }
     }
 }

@@ -41,7 +41,15 @@ class APIUser: ObservableObject {
         guard let requestURL = urlComponents.url else { throw URLError(.badURL) }
         var request = URLRequest(url: requestURL)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        let (data, _) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        if let httpResponse = response as? HTTPURLResponse, !(200...299).contains(httpResponse.statusCode) {
+            let errorText = String(data: data, encoding: .utf8) ?? "Unknown error"
+            throw NSError(
+                domain: "APIError",
+                code: httpResponse.statusCode,
+                userInfo: [NSLocalizedDescriptionKey: errorText]
+            )
+        }
         return try JSONDecoder().decode(User42.self, from: data)
     }
         

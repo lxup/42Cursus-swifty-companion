@@ -12,14 +12,19 @@ struct UserView: View {
     @StateObject private var user = APIUser()
     @State private var activeCursus: CursusUser42?
     @EnvironmentObject var token: APIToken
+    @State private var showErrorAlert = false
     
     var body: some View {
         VStack {
-            if user.error != nil {
+            if let error = user.error {
                 VStack(spacing: 8) {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundColor(.secondary)
-                        .font(.system(size: 40))
+                    Button {
+                        showErrorAlert = true
+                    } label: {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(.secondary)
+                            .font(.system(size: 40))
+                    }
                     Text("Failed to fetch user: \(login)")
                     Button("Retry") {
                         Task {
@@ -33,14 +38,17 @@ struct UserView: View {
                     }
                     .buttonStyle(.borderedProminent)
                 }
-                .padding()
-                .cornerRadius(20)
-            } else if user.isInitialized && user.value == nil {
+                .alert("Error", isPresented: $showErrorAlert) {
+                    Button("OK", role: .cancel) { }
+                } message: {
+                    Text(error.localizedDescription)
+                }
+            } else if user.isInitialized && user.value == nil && user.isLoading == false {
                 Text("User not found")
             } else {
                 HStack {
                     AvatarComponent(
-                        imageURL: user.value?.image.link,
+                        imageURL: user.value?.image?.link,
                         fallbackText: user.value?.login ?? "placeholder",
                         size: 100
                     )
@@ -68,7 +76,7 @@ struct UserView: View {
             }
         }
         .frame(maxHeight: .infinity, alignment: .top)
-        .redacted(reason: !user.isInitialized ? .placeholder : [])
+        .redacted(reason: (!user.isInitialized || user.isLoading) ? .placeholder : [])
         .onAppear {
             Task {
                 if let accessToken = token.value?.accessToken {

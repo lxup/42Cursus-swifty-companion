@@ -21,7 +21,15 @@ class APIToken: ObservableObject {
         request.httpMethod = "POST"
         request.httpBody = body.data(using: .utf8)
 
-        let (data, _) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        if let httpResponse = response as? HTTPURLResponse, !(200...299).contains(httpResponse.statusCode) {
+            let errorText = String(data: data, encoding: .utf8) ?? "Unknown error"
+            throw NSError(
+                domain: "APIError",
+                code: httpResponse.statusCode,
+                userInfo: [NSLocalizedDescriptionKey: errorText]
+            )
+        }
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .secondsSince1970
 

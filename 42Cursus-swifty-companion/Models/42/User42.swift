@@ -13,26 +13,26 @@ struct User42: Codable, Identifiable {
     var login: String
     var firstName: String
     var lastName: String?
-    var usualFullName: String
+    var usualFullName: String?
     var usualFirstName: String?
     var url: String
     var phone: String?
-    var displayname: String
-    var kind: String
-    var image: Image42
-    var staff: Bool
-    var correctionPoint: Int
-    var poolMonth: String
-    var poolYear: String
+    var displayname: String?
+    var kind: String?
+    var image: Image42?
+    var staff: Bool?
+    var correctionPoint: Int?
+    var poolMonth: String?
+    var poolYear: String?
     var location: String?
-    var wallet: Int
+    var wallet: Int?
     var anonymizeDate: String?
     var dataErasureDate: String?
     var createdAt: String?
     var updatedAt: String?
     var alumnizedAt: String?
-    var alumni: Bool
-    var active: Bool
+    var alumni: Bool?
+    var active: Bool?
     var cursusUsers: [CursusUser42]?
     var projectsUsers: [ProjectUser42]?
     var achievements: [Achievement42]?
