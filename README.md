@@ -2,7 +2,7 @@
 
 iOS app built with SwiftUI to display 42 students’ profiles using the official intra API.
 
-[![Watch the preview](https://raw.githubusercontent.com/lxup/42Cursus-swifty-companion/main/assets/preview.png)](https://raw.githubusercontent.com/lxup/42Cursus-swifty-companion/main/assets/preview.gif)
+[![Watch the preview](./assets/preview.gif)](./assets/preview.gif)
 
 ## 📦 Project Structure
 
