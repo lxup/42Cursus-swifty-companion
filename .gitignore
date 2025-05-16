@@ -63,3 +63,5 @@ fastlane/test_output
 
 # Env
 Env.plist
+
+.DS_Store

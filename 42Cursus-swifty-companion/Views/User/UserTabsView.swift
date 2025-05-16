@@ -38,10 +38,10 @@ struct UserTabsView: View {
             TabView(selection: $activeTab) {
                 UserProjectsView(user: user, activeCursus: $activeCursus)
                     .tag(UserTabs.projects)
-                UserAchievementsView(user: user, activeCursus: $activeCursus)
-                    .tag(UserTabs.achievements)
                 UserSkillsView(user: user, activeCursus: $activeCursus)
                     .tag(UserTabs.skills)
+                UserAchievementsView(user: user, activeCursus: $activeCursus)
+                    .tag(UserTabs.achievements)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
         }

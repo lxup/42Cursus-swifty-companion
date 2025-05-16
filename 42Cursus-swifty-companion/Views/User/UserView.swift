@@ -107,7 +107,7 @@ struct UserView: View {
         var body: some View {
             VStack {
                 if (token.value != nil) {
-                    UserView(login: "lquehec")
+                    UserView(login: "gokerdgokerog")
                         .environmentObject(token)
                 } else if (token.isLoading) {
                     LoadingComponent()
