@@ -71,6 +71,7 @@ struct UserView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 if user.isInitialized && user.value != nil {
                     UserSubHeaderView(user: user.value, activeCursus: $activeCursus)
+                        .padding(.horizontal, 10)
                     UserTabsView(user: user.value, activeCursus: $activeCursus)
                 }
             }
@@ -107,7 +108,7 @@ struct UserView: View {
         var body: some View {
             VStack {
                 if (token.value != nil) {
-                    UserView(login: "gokerdgokerog")
+                    UserView(login: "lquehec")
                         .environmentObject(token)
                 } else if (token.isLoading) {
                     LoadingComponent()

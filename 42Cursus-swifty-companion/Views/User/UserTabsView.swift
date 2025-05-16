@@ -35,6 +35,7 @@ struct UserTabsView: View {
                 }
             }
                 .pickerStyle(.segmented)
+                .padding(.horizontal, 10)
             TabView(selection: $activeTab) {
                 UserProjectsView(user: user, activeCursus: $activeCursus)
                     .tag(UserTabs.projects)
