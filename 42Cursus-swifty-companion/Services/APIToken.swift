@@ -12,6 +12,40 @@ class APIToken: ObservableObject {
     @Published var value: Token? = nil
     @Published var isLoading: Bool = false
     @Published var error: Error? = nil
+    
+    private var refreshTimer: Timer?
+    
+    init() {
+        startRefreshTimer()
+    }
+
+    deinit {
+        refreshTimer?.invalidate()
+    }
+    
+    private func startRefreshTimer() {
+        refreshTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
+            Task {
+                await self?.refreshIfNeeded()
+            }
+        }
+    }
+    
+    private func refreshIfNeeded() async {
+        guard let token = value else { return }
+        if Date() >= token.expirationDate.addingTimeInterval(-10) {
+            do {
+                let newToken = try await generateToken()
+                DispatchQueue.main.async {
+                    self.value = newToken
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    self.error = error
+                }
+            }
+        }
+    }
 
     func generateToken() async throws -> Token {
         let endpoint = URL(string: "\(APIConstants.shared.baseURL)/oauth/token")!

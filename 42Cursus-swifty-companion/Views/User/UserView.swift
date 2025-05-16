@@ -28,9 +28,9 @@ struct UserView: View {
                     Text("Failed to fetch user: \(login)")
                     Button("Retry") {
                         Task {
-                            if let accessToken = token.value?.accessToken {
+                            if let _ = token.value {
                                 await user.fetch(
-                                    token: accessToken,
+                                    token: token,
                                     login: login
                                 )
                             }
@@ -79,9 +79,9 @@ struct UserView: View {
         .redacted(reason: (!user.isInitialized || user.isLoading) ? .placeholder : [])
         .onAppear {
             Task {
-                if let accessToken = token.value?.accessToken {
+                if let _ = token.value {
                     await user.fetch(
-                        token: accessToken,
+                        token: token,
                         login: login
                     )
                 }

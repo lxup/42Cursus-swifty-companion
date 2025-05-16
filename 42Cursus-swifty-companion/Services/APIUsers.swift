@@ -19,8 +19,17 @@ class APIUsers: ObservableObject {
     private var token: String?
     
     @MainActor
-    func fetch(token: String, searchTerm: String? = nil, campusId: Int? = nil) async {
-        self.token = token
+    func fetch(token: APIToken, searchTerm: String? = nil, campusId: Int? = nil) async {
+        do {
+            let validToken = try await token.checkOrRefreshToken()
+            if self.token != validToken.accessToken {
+                self.token = validToken.accessToken
+            }
+        } catch {
+            self.error = error
+            print("Error: Failed to fetch token")
+            return
+        }
         self.currentPage = 1
         self.currentSearchTerm = searchTerm
         self.currentCampusId = campusId

@@ -15,7 +15,7 @@ class APIUser: ObservableObject {
     
     @MainActor
     func fetch(
-        token: String,
+        token: APIToken,
         login: String
     ) async {
         self.error = nil
@@ -25,7 +25,8 @@ class APIUser: ObservableObject {
             isInitialized = true
         }
         do {
-            self.value = try await fetchUser(token: token, login: login)
+            let accessToken = try await token.checkOrRefreshToken()
+            self.value = try await fetchUser(token: accessToken.accessToken, login: login)
 
 //            self.value?.coalitions = try await fetchCoalitions(token: token, login: login)
 //            self.value?.coalition = self.value?.coalitions?.last

@@ -29,9 +29,9 @@ struct SearchSheetView: View {
                     Text("Failed to fetch users.")
                     Button("Retry") {
                         Task {
-                            if let accessToken = token.value?.accessToken {
+                            if let _ = token.value {
                                 await users.fetch(
-                                    token: accessToken,
+                                    token: token,
                                     searchTerm: debouncedSearch.debouncedValue,
                                     campusId: 1
                                 )
@@ -92,9 +92,9 @@ struct SearchSheetView: View {
         .onAppear() {
             // Initial load
             Task {
-                if let accessToken = token.value?.accessToken {
+                if let _ = token.value {
                     await users.fetch(
-                        token: accessToken,
+                        token: token,
                         searchTerm: debouncedSearch.debouncedValue,
                         campusId: 1
                     )
@@ -103,9 +103,9 @@ struct SearchSheetView: View {
         }
         .onChange(of: debouncedSearch.debouncedValue) { oldValue, newValue in
             Task {
-                if let accessToken = token.value?.accessToken {
+                if let _ = token.value {
                     await users.fetch(
-                        token: accessToken,
+                        token: token,
                         searchTerm: newValue,
                         campusId: 1
                     )

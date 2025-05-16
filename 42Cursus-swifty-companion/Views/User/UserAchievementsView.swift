@@ -35,7 +35,17 @@ struct UserAchievementsView: View {
                     } placeholder: {
                         ProgressView()
                     }
-                    Text(achievementUser.name)
+                    VStack(alignment: .leading) {
+                        Text(achievementUser.name)
+                            .lineLimit(2)
+                        if let description = achievementUser
+                            .description {
+                            Text(description)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(2)
+                        }
+                    }
                 }
             }
         } else {
