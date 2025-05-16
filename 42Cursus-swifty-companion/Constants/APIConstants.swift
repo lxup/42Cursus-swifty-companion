@@ -18,7 +18,7 @@ struct APIConstants {
     let preferredCursusOrder: [Int]
 
     private init() {
-        guard let url = Bundle.main.url(forResource: "env", withExtension: "plist"),
+        guard let url = Bundle.main.url(forResource: "Env", withExtension: "plist"),
               let data = try? Data(contentsOf: url),
               let dict = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any],
               let baseURL = dict["API_BASE_URL"] as? String,
