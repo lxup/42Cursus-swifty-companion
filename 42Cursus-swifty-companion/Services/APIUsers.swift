@@ -49,6 +49,7 @@ class APIUsers: ObservableObject {
     
     @MainActor
     private func fetchPage(page: Int) async {
+        self.error = nil
         isLoading = true
         defer { isLoading = false }
 
@@ -64,7 +65,8 @@ class APIUsers: ObservableObject {
                 .lowercased()
                 .trimmingCharacters(in: .whitespacesAndNewlines),
                 !search.isEmpty {
-                queryItems.append(URLQueryItem(name: "range[login]", value: "\(search),\(search)z"))
+                let rangeValue = "\(search),\(search)z"
+                queryItems.append(URLQueryItem(name: "range[login]", value: rangeValue.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)))
             }
 
             urlComponents.queryItems = queryItems
@@ -91,6 +93,7 @@ class APIUsers: ObservableObject {
                 results.append(contentsOf: newUsers)
             }
         } catch {
+            print(error)
             self.error = error
             print("Error: Failed to fetch users")
         }

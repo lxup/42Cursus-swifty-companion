@@ -102,11 +102,17 @@ struct SearchSheetView: View {
             }
         }
         .onChange(of: debouncedSearch.debouncedValue) { oldValue, newValue in
+            let filtered = newValue.filter { $0.isLetter || $0.isNumber }
+
+            if filtered != newValue {
+                debouncedSearch.value = filtered
+                return
+            }
             Task {
                 if let _ = token.value {
                     await users.fetch(
                         token: token,
-                        searchTerm: newValue,
+                        searchTerm: filtered,
                         campusId: 1
                     )
                 }
